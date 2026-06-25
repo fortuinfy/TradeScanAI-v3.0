@@ -1,0 +1,1 @@
+# TradeScanAI-v3.0
