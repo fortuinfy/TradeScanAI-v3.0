@@ -50,9 +50,7 @@ const APP_CONFIG = {
 
     CB: "Continuation Breakout",
 
-    PC: "Pullback Continuation",
-
-    RB: "Range Breakout"
+    PC: "Pullback Continuation"
 
   },
 
