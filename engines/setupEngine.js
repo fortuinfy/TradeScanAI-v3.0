@@ -20,7 +20,6 @@ function calculateSetupScores(data) {
 
   let cbScore = 0;
   let pcScore = 0;
-  let rbScore = 0;
 
   // =========================
   // CORE CONDITIONS
@@ -40,11 +39,6 @@ function calculateSetupScores(data) {
 
     rsi >= 60 &&
     rsi <= 75;
-
-  const reversalRSI =
-
-    rsi >= 48 &&
-    rsi <= 60;
 
   // =========================
   // DISTANCE FROM EMA20
@@ -93,27 +87,6 @@ function calculateSetupScores(data) {
     pcScore += 10;
 
   // =========================
-  // RANGE BREAKOUT
-  // =========================
-
-  if (
-    distanceFromEMA20 >= 0 &&
-    distanceFromEMA20 <= 1
-  )
-    rbScore += 25;
-
-  if (reversalRSI)
-    rbScore += 35;
-
-  if (
-    Math.abs(ema20 - ema50) / ema50 * 100 <= 2
-  )
-    rbScore += 25;
-
-  if (ltp > ema20)
-    rbScore += 15;
-
-  // =========================
   // OVEREXTENSION PENALTY
   // =========================
 
@@ -139,7 +112,6 @@ function calculateSetupScores(data) {
 
     cbScore -= 30;
     pcScore -= 30;
-    rbScore -= 20;
 
   }
 
@@ -157,18 +129,12 @@ function calculateSetupScores(data) {
     Math.min(100, pcScore)
   );
 
-  rbScore = Math.max(
-    0,
-    Math.min(100, rbScore)
-  );
-
   // =========================
   // NORMALIZED %
   // =========================
 
   const cbPercent = cbScore;
   const pcPercent = pcScore;
-  const rbPercent = rbScore;
 
   // =========================
   // BEST SETUP
@@ -176,21 +142,9 @@ function calculateSetupScores(data) {
 
   let setup = "CB";
 
-  if (
-    pcPercent > cbPercent &&
-    pcPercent > rbPercent
-  ) {
+  if (pcPercent > cbPercent) {
 
     setup = "PC";
-
-  }
-
-  else if (
-    rbPercent > cbPercent &&
-    rbPercent > pcPercent
-  ) {
-
-    setup = "RB";
 
   }
 
@@ -201,8 +155,7 @@ function calculateSetupScores(data) {
   const setupScore = Math.max(
 
     cbPercent,
-    pcPercent,
-    rbPercent
+    pcPercent
 
   );
 
@@ -218,11 +171,9 @@ function calculateSetupScores(data) {
 
     cbScore,
     pcScore,
-    rbScore,
 
     cbPercent,
     pcPercent,
-    rbPercent,
 
     distanceFromEMA20
 
