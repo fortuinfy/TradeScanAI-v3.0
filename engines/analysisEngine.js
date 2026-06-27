@@ -188,9 +188,6 @@ function analyzeNewScanMode(data) {
     pcScore:
       setupResult.pcPercent,
 
-    rbScore:
-      setupResult.rbPercent,
-
     momentumScore:
       momentumResult.momentumScore,
 
@@ -381,9 +378,6 @@ function analyzeWatchlistMode(data) {
 
     pcScore:
       setupResult.pcPercent,
-
-    rbScore:
-      setupResult.rbPercent,
 
     readinessScore:
       momentumResult.readinessScore,
