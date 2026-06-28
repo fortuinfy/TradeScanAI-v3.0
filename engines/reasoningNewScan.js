@@ -127,13 +127,7 @@ function generateNewScanReasons(data) {
 
   }
 
-  if (setup === "RB") {
-
-    reasons.push(
-      "Range Breakout structure detected."
-    );
-
-  }
+  // RB logic removed
 
   // =========================
   // SETUP QUALITY
