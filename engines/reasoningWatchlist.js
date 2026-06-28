@@ -169,13 +169,7 @@ function generateWatchlistReasons(data) {
 
   }
 
-  if (setup === "RB") {
-
-    reasons.push(
-      "Range Breakout structure remains active."
-    );
-
-  }
+  // RB logic removed
 
   // =========================
   // SETUP SCORE
