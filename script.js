@@ -921,10 +921,9 @@ function renderResults(result) {
   }
 
   // =========================
-  // NEW SCAN / WATCHLIST (GROUPED LAYOUT)
+  // NEW SCAN / WATCHLIST
   // =========================
 
-  // Group 1: Final Verdict, Confidence, Workflow Action
   container.innerHTML = `
 
     <section class="card">
@@ -932,12 +931,28 @@ function renderResults(result) {
       <div class="section-header">
 
         <h2>
-          Final Verdict: ${result.verdict}
+          ${result.verdict}
         </h2>
+
+        <p>
+          Final Verdict
+        </p>
 
       </div>
 
       <div class="input-grid">
+
+        <div>
+
+          <strong>
+            Workflow Action
+          </strong>
+
+          <br>
+
+          ${result.workflowAction}
+
+        </div>
 
         <div>
 
@@ -963,18 +978,6 @@ function renderResults(result) {
 
         </div>
 
-        <div>
-
-          <strong>
-            Workflow Action
-          </strong>
-
-          <br>
-
-          ${result.workflowAction}
-
-        </div>
-
       </div>
 
     </section>
@@ -982,7 +985,7 @@ function renderResults(result) {
   `;
 
   // =========================
-  // SETUP CARD (GROUPED LAYOUT)
+  // SETUP CARD
   // =========================
 
   container.innerHTML += `
@@ -1059,7 +1062,7 @@ function renderResults(result) {
         <div class="section-header">
 
           <h3>
-            Internal Metrics
+            Setup Scores
           </h3>
 
         </div>
@@ -1069,7 +1072,7 @@ function renderResults(result) {
           <div>
 
             <strong>
-              CB Score
+              CB
             </strong>
 
             <br>
@@ -1081,7 +1084,7 @@ function renderResults(result) {
           <div>
 
             <strong>
-              PC Score
+              PC
             </strong>
 
             <br>
@@ -1152,7 +1155,7 @@ function renderResults(result) {
   }
 
   // =========================
-  // TRADE PLAN (WITH PARTIAL EXIT)
+  // TRADE PLAN
   // =========================
 
   if (
@@ -1215,17 +1218,9 @@ function renderResults(result) {
           </div>
 
           <div>
-            <strong>
-              Partial Exit (1:1)
-            </strong>
-            <br>
-            ${tp.partialExit || "N/A"}
-          </div>
-
-          <div>
 
             <strong>
-              Target (1:2)
+              Target
             </strong>
 
             <br>
@@ -1736,4 +1731,18 @@ function resetApplication() {
 
   updateModeUI();
 
-  window
+  window.lastAnalysisResult =
+    null;
+
+}
+
+// =========================
+// INITIALIZE
+// =========================
+
+window.lastAnalysisResult =
+  null;
+
+updateModeUI();
+
+buildMomentumInputs();
