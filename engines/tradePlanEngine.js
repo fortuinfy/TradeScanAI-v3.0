@@ -69,6 +69,25 @@ function generateTradePlan(data) {
     stopLoss;
 
   // =========================
+  // PARTIAL EXIT
+  // RR = 1 : 1
+  // =========================
+
+  const partialExit =
+
+    parseFloat(
+
+      (
+
+        executionPrice +
+
+        riskPerShare
+
+      ).toFixed(2)
+
+    );
+
+  // =========================
   // TARGET
   // RR = 1 : 2
   // =========================
@@ -130,6 +149,8 @@ function generateTradePlan(data) {
     triggerHigh,
 
     stopLoss,
+
+    partialExit,
 
     target,
 
