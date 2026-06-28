@@ -1093,18 +1093,6 @@ function renderResults(result) {
 
           </div>
 
-          <div>
-
-            <strong>
-              RB
-            </strong>
-
-            <br>
-
-            ${result.rbScore}%
-
-          </div>
-
         </div>
 
       </section>
