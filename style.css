@@ -15,7 +15,7 @@ body {
     background: radial-gradient(circle at top, #111827, #020617); 
     color: #e2e8f0; 
     min-height: 100vh; 
-    padding: 24px; 
+    padding: 20px; 
 } 
 
 /* ========================= 
@@ -33,29 +33,29 @@ body {
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    gap: 20px; 
-    padding: 30px; 
-    margin-bottom: 24px; 
-    border-radius: 24px; 
+    gap: 16px; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+    border-radius: 20px; 
     background: rgba(15, 23, 42, 0.92); 
     border: 1px solid rgba(255, 255, 255, 0.06); 
     backdrop-filter: blur(16px); 
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); 
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); 
 } 
 
 /* ========================= 
    BRAND 
    ========================= */
 .brand-section h1 { 
-    font-size: 40px; 
+    font-size: 32px; 
     font-weight: 800; 
     color: #f8fafc; 
-    margin-bottom: 10px; 
+    margin-bottom: 6px; 
 } 
 .brand-section p { 
     color: #94a3b8; 
-    font-size: 15px; 
-    line-height: 1.5; 
+    font-size: 14px; 
+    line-height: 1.4; 
 } 
 
 /* ========================= 
@@ -71,16 +71,16 @@ body {
    TIMESTAMP BOX 
    ========================= */
 .timestamp-box { 
-    min-width: 180px; 
+    min-width: 160px; 
     display: flex; 
     flex-direction: column; 
-    gap: 6px; 
-    padding: 14px 18px; 
-    border-radius: 16px; 
+    gap: 4px; 
+    padding: 12px 16px; 
+    border-radius: 14px; 
     background: rgba(2, 6, 23, 0.85); 
     border: 1px solid rgba(255, 255, 255, 0.05); 
     color: #cbd5e1; 
-    font-size: 14px; 
+    font-size: 13px; 
 } 
 #dateTime { 
     font-weight: 700; 
@@ -92,16 +92,16 @@ body {
    HELP BUTTON 
    ========================= */
 .help-btn { 
-    width: 52px; 
-    height: 52px; 
+    width: 44px; 
+    height: 44px; 
     border: none; 
     border-radius: 50%; 
     cursor: pointer; 
-    font-size: 22px; 
+    font-size: 18px; 
     font-weight: 700; 
     color: white; 
     background: linear-gradient(135deg, #2563eb, #3b82f6); 
-    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35); 
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35); 
     transition: 0.25s; 
 } 
 .help-btn:hover { 
@@ -114,34 +114,35 @@ body {
 .card { 
     background: rgba(15, 23, 42, 0.94); 
     border: 1px solid rgba(255, 255, 255, 0.05); 
-    border-radius: 24px; 
-    padding: 28px; 
-    margin-bottom: 24px; 
-    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28); 
+    border-radius: 20px; 
+    padding: 20px; 
+    margin-bottom: 16px; 
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28); 
 } 
 .card-header {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    text-align: center; /* Aligns the titles to Center-Center */
 }
 .card-header h3 {
     color: #f8fafc;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
 }
 
 /* ========================= 
-   SECTION HEADER (Legacy support)
+   SECTION HEADER 
    ========================= */
 .section-header { 
-    margin-bottom: 22px; 
+    margin-bottom: 18px; 
 } 
 .section-header h3 { 
     color: #f8fafc; 
-    font-size: 24px; 
-    margin-bottom: 8px; 
+    font-size: 20px; 
+    margin-bottom: 6px; 
 } 
 .section-header p { 
     color: #94a3b8; 
-    font-size: 14px; 
+    font-size: 13px; 
 } 
 
 /* ========================= 
@@ -149,17 +150,17 @@ body {
    ========================= */
 .mode-selector { 
     display: flex; 
-    gap: 14px; 
+    gap: 12px; 
     flex-wrap: wrap; 
 } 
 .mode-btn { 
     flex: 1; 
-    min-width: 220px; 
-    padding: 18px; 
+    min-width: 180px; 
+    padding: 14px; 
     border: none; 
-    border-radius: 16px; 
+    border-radius: 14px; 
     cursor: pointer; 
-    font-size: 15px; 
+    font-size: 14px; 
     font-weight: 700; 
     color: #cbd5e1; 
     background: rgba(30, 41, 59, 0.90); 
@@ -171,26 +172,27 @@ body {
 .active-mode { 
     color: white; 
     background: linear-gradient(135deg, #2563eb, #1d4ed8); 
-    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35); 
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35); 
 } 
 
 /* ========================= 
    MODE BANNER 
    ========================= */
 .mode-banner { 
-    padding: 36px; 
-    margin-bottom: 24px; 
-    border-radius: 26px; 
+    padding: 24px; 
+    margin-bottom: 20px; 
+    border-radius: 20px; 
     color: white; 
     background: linear-gradient(135deg, #1d4ed8, #3b82f6); 
 } 
 .mode-banner h2 { 
-    font-size: 40px; 
-    margin-bottom: 10px; 
+    font-size: 32px; 
+    margin-bottom: 8px; 
 } 
 .mode-banner p { 
     opacity: 0.95; 
-    line-height: 1.6; 
+    line-height: 1.5;
+    font-size: 14px;
 } 
 
 /* ========================= 
@@ -198,8 +200,8 @@ body {
    ========================= */
 .input-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
-    gap: 18px; 
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+    gap: 14px; 
 } 
 
 /* ========================= 
@@ -210,25 +212,25 @@ body {
     flex-direction: column; 
 } 
 .input-group label { 
-    margin-bottom: 10px; 
+    margin-bottom: 8px; 
     color: #cbd5e1; 
-    font-size: 14px; 
+    font-size: 13px; 
     font-weight: 600; 
 } 
 .input-group input, .input-group select { 
     width: 100%; 
-    padding: 16px; 
-    border-radius: 14px; 
+    padding: 12px; 
+    border-radius: 12px; 
     border: 1px solid rgba(255, 255, 255, 0.08); 
     background: rgba(2, 6, 23, 0.88); 
     color: white; 
-    font-size: 15px; 
+    font-size: 14px; 
     outline: none; 
     transition: 0.25s; 
 } 
 .input-group input:focus, .input-group select:focus { 
     border-color: #3b82f6; 
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18); 
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18); 
 } 
 .input-group input::placeholder { 
     color: #64748b; 
@@ -241,13 +243,13 @@ body {
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    gap: 20px; 
+    gap: 16px; 
 } 
 .switch { 
     position: relative; 
     display: inline-block; 
-    width: 64px; 
-    height: 36px; 
+    width: 54px; 
+    height: 30px; 
 } 
 .switch input { 
     opacity: 0; 
@@ -265,8 +267,8 @@ body {
 .slider:before { 
     position: absolute; 
     content: ""; 
-    width: 28px; 
-    height: 28px; 
+    width: 22px; 
+    height: 22px; 
     left: 4px; 
     bottom: 4px; 
     border-radius: 50%; 
@@ -277,7 +279,7 @@ body {
     background: #2563eb; 
 } 
 .switch input:checked + .slider:before { 
-    transform: translateX(28px); 
+    transform: translateX(24px); 
 } 
 
 /* ========================= 
@@ -289,14 +291,14 @@ body {
 .candle-block { 
     background: rgba(2, 6, 23, 0.88); 
     border: 1px solid rgba(255, 255, 255, 0.05); 
-    border-radius: 20px; 
-    padding: 24px; 
-    margin-bottom: 20px; 
+    border-radius: 16px; 
+    padding: 16px; 
+    margin-bottom: 16px; 
 } 
 .candle-block h3 { 
-    margin-bottom: 18px; 
+    margin-bottom: 14px; 
     color: #f8fafc; 
-    font-size: 18px; 
+    font-size: 16px; 
 } 
 
 /* ========================= 
@@ -304,15 +306,15 @@ body {
    ========================= */
 .action-section { 
     display: flex; 
-    gap: 16px; 
-    margin-bottom: 28px; 
+    gap: 14px; 
+    margin-bottom: 24px; 
 } 
 .primary-btn, .secondary-btn { 
     border: none; 
     cursor: pointer; 
-    border-radius: 16px; 
-    padding: 16px 30px; 
-    font-size: 15px; 
+    border-radius: 14px; 
+    padding: 14px 24px; 
+    font-size: 14px; 
     font-weight: 700; 
     transition: 0.25s; 
 } 
@@ -322,7 +324,7 @@ body {
 .primary-btn { 
     color: white; 
     background: linear-gradient(135deg, #2563eb, #1d4ed8); 
-    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35); 
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35); 
 } 
 .secondary-btn { 
     color: #cbd5e1; 
@@ -340,39 +342,41 @@ body {
 } 
 
 /* ========================= 
-   SUB CARD GRID (NEW)
+   SUB CARD GRID 
    ========================= */
 .sub-card-grid { 
     display: grid; 
     grid-template-columns: repeat(3, 1fr); 
-    gap: 18px; 
+    gap: 14px; 
+    text-align: center; /* Cascades centering to internal elements naturally */
 } 
 
 /* ========================= 
-   SUB CARD (NEW)
+   SUB CARD 
    ========================= */
 .sub-card { 
     background: rgba(2, 6, 23, 0.88); 
-    border-radius: 18px; 
-    padding: 24px; 
+    border-radius: 14px; 
+    padding: 16px; 
     border: 1px solid rgba(255, 255, 255, 0.05); 
-    min-height: 120px; 
+    min-height: 90px; 
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center; /* Centers contents precisely */
 } 
 .sub-card h4 { 
     color: #94a3b8; 
-    font-size: 13px; 
-    margin-bottom: 12px; 
+    font-size: 12px; 
+    margin-bottom: 8px; 
     font-weight: 600; 
     text-transform: uppercase;
 } 
 .sub-card p { 
     color: #f8fafc; 
-    font-size: 22px; 
+    font-size: 18px; 
     font-weight: 800; 
-    line-height: 1.4; 
+    line-height: 1.3; 
     word-break: break-word; 
 } 
 
@@ -393,12 +397,12 @@ body {
 .badge-container { 
     display: flex; 
     flex-wrap: wrap; 
-    gap: 12px; 
+    gap: 10px; 
 } 
 .badge { 
-    padding: 10px 16px; 
+    padding: 8px 14px; 
     border-radius: 999px; 
-    font-size: 13px; 
+    font-size: 12px; 
     font-weight: 700; 
 } 
 .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; } 
@@ -408,10 +412,10 @@ body {
 
 .workflow-badge { 
     display: inline-block; 
-    margin-top: 10px; 
+    margin-top: 8px; 
     padding: 6px 12px; 
     border-radius: 20px; 
-    font-size: 12px; 
+    font-size: 11px; 
     font-weight: 600; 
     background: rgba(59, 130, 246, 0.15); 
     color: #60a5fa; 
@@ -422,12 +426,13 @@ body {
    REASON BOX 
    ========================= */
 .reason-box ul { 
-    padding-left: 22px; 
-    margin-top: 20px;
+    padding-left: 20px; 
+    margin-top: 16px;
 } 
 .reason-box li { 
-    margin-bottom: 14px; 
-    line-height: 1.8; 
+    margin-bottom: 10px; 
+    line-height: 1.6; 
+    font-size: 14px;
     color: #cbd5e1; 
 } 
 
@@ -437,36 +442,35 @@ body {
 footer { 
     opacity: 0.9; 
     text-align: center;
-    margin-top: 40px;
+    margin-top: 30px;
     color: #94a3b8;
-    font-size: 14px;
+    font-size: 13px;
 } 
 
 /* ========================= 
    RESPONSIVE TABLET 
    ========================= */
 @media (max-width: 1024px) { 
-    .sub-card p { font-size: 20px; } 
-    .mode-banner h2 { font-size: 34px; } 
+    .mode-banner h2 { font-size: 28px; } 
 } 
 
 /* ========================= 
    RESPONSIVE MOBILE 
    ========================= */
 @media (max-width: 768px) { 
-    body { padding: 14px; } 
-    .top-header { flex-direction: column; align-items: flex-start; } 
+    body { padding: 12px; } 
+    .top-header { flex-direction: column; align-items: flex-start; padding: 16px; } 
     .header-actions { width: 100%; justify-content: space-between; } 
     .mode-selector { flex-direction: column; } 
     .mode-btn { width: 100%; } 
     .action-section { flex-direction: column; } 
     .primary-btn, .secondary-btn { width: 100%; } 
-    .mode-banner { padding: 24px; } 
-    .mode-banner h2 { font-size: 28px; } 
-    .card { padding: 20px; } 
+    .mode-banner { padding: 20px; } 
+    .mode-banner h2 { font-size: 24px; } 
+    .card { padding: 16px; } 
     .sub-card-grid { grid-template-columns: 1fr; }
-    .sub-card { padding: 18px; min-height: auto;} 
-    .sub-card p { font-size: 18px; } 
+    .sub-card { padding: 14px; min-height: auto;} 
+    .sub-card p { font-size: 16px; } 
     .advanced-top { flex-direction: column; align-items: flex-start; } 
     .timestamp-box { min-width: auto; width: 100%; } 
 } 
@@ -475,8 +479,7 @@ footer {
    SMALL MOBILE 
    ========================= */
 @media (max-width: 480px) { 
-    .brand-section h1 { font-size: 30px; } 
-    .brand-section p { font-size: 13px; } 
-    .section-header h3 { font-size: 20px; } 
-    .sub-card p { font-size: 16px; } 
+    .brand-section h1 { font-size: 24px; } 
+    .brand-section p { font-size: 12px; } 
+    .section-header h3 { font-size: 18px; } 
 }
