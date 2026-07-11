@@ -178,7 +178,8 @@ function runAnalysis() {
         const currentTarget = safeNumber(document.getElementById("currentTarget").value);
         const quantity = safeNumber(document.getElementById("quantity").value); 
         
-        const activeValidation = validateActiveTradeInputs({ executedEntry, currentSL, currentTarget, quantity }); 
+        // BUG FIX: Passed 'ltp' inside the validation payload
+        const activeValidation = validateActiveTradeInputs({ ltp, executedEntry, currentSL, currentTarget, quantity }); 
         
         if (!activeValidation.valid) { 
             alert(activeValidation.message); 
@@ -192,7 +193,6 @@ function runAnalysis() {
     // DISPLAY 
     // ========================= 
     if (result) {
-        // Inject strictly required Meta Info for the new Timestamp Card
         result.stockName = stockName !== "" ? stockName : "Unknown Asset";
         result.timeframe = timeframe;
         result.timestamp = new Date().toLocaleString("en-IN");
@@ -218,14 +218,14 @@ function collectCandles() {
 } 
 
 // =========================
-// RESULT RENDERER (MASTER CARDS ARCHITECTURE)
+// RESULT RENDERER
 // ========================= 
 function renderResults(result) {
     const container = document.getElementById("resultsContainer");
     container.innerHTML = "";
 
     // ========================= 
-    // MASTER 0: ANALYSIS OVERVIEW (TIMESTAMP CARD)
+    // MASTER 0: ANALYSIS OVERVIEW
     // ========================= 
     container.innerHTML += `
     <div class="card">
@@ -386,8 +386,9 @@ function renderResults(result) {
         </div>`;
     }
 
-    // Master 4: Momentum Analysis Card
-    if (currentMode === "new" && result.momentumScore !== undefined) {
+    // Master 4: Momentum Analysis / Execution Readiness Card
+    // BUG FIX: Prevent rendering if verdict is AVOID or REMOVE
+    if (currentMode === "new" && result.momentumScore !== undefined && result.verdict !== "AVOID") {
         container.innerHTML += `
         <div class="card">
             <div class="card-header"><h3>Momentum Analysis</h3></div>
@@ -406,7 +407,7 @@ function renderResults(result) {
                 </div>
             </div>
         </div>`;
-    } else if (currentMode === "watchlist" && result.readinessScore !== undefined) {
+    } else if (currentMode === "watchlist" && result.readinessScore !== undefined && result.verdict !== "REMOVE") {
         container.innerHTML += `
         <div class="card">
             <div class="card-header"><h3>Execution Readiness</h3></div>
@@ -428,8 +429,9 @@ function renderResults(result) {
     }
 
     // Master 5: Trade Plan Card
+    // BUG FIX: Prevent rendering if verdict is AVOID or REMOVE
     const tp = result.tradePlan;
-    if (tp) {
+    if (tp && result.verdict !== "AVOID" && result.verdict !== "REMOVE") {
         container.innerHTML += `
         <div class="card">
             <div class="card-header"><h3>Trade Plan</h3></div>
