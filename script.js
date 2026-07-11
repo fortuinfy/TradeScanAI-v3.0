@@ -191,8 +191,15 @@ function runAnalysis() {
     // ========================= 
     // DISPLAY 
     // ========================= 
-    window.lastAnalysisResult = result;
-    renderResults(result); 
+    if (result) {
+        // Inject strictly required Meta Info for the new Timestamp Card
+        result.stockName = stockName !== "" ? stockName : "Unknown Asset";
+        result.timeframe = timeframe;
+        result.timestamp = new Date().toLocaleString("en-IN");
+        
+        window.lastAnalysisResult = result;
+        renderResults(result); 
+    }
 } 
 
 // ========================= 
@@ -211,11 +218,33 @@ function collectCandles() {
 } 
 
 // =========================
-// RESULT RENDERER (7 MASTER CARDS / 3 SUB CARDS ARCHITECTURE)
+// RESULT RENDERER (MASTER CARDS ARCHITECTURE)
 // ========================= 
 function renderResults(result) {
     const container = document.getElementById("resultsContainer");
     container.innerHTML = "";
+
+    // ========================= 
+    // MASTER 0: ANALYSIS OVERVIEW (TIMESTAMP CARD)
+    // ========================= 
+    container.innerHTML += `
+    <div class="card">
+        <div class="card-header"><h3>Analysis Overview</h3></div>
+        <div class="sub-card-grid">
+            <div class="sub-card">
+                <h4>Asset</h4>
+                <p>${result.stockName}</p>
+            </div>
+            <div class="sub-card">
+                <h4>Timeframe</h4>
+                <p>${result.timeframe}</p>
+            </div>
+            <div class="sub-card">
+                <h4>Time Evaluated</h4>
+                <p style="font-size: 15px;">${result.timestamp}</p>
+            </div>
+        </div>
+    </div>`;
 
     // ========================= 
     // ACTIVE TRADE 
