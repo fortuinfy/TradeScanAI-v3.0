@@ -600,7 +600,6 @@ function resetApplication() {
     updateModeUI(); 
     window.lastAnalysisResult = null;
 
-    // Hide Screenshot button on reset
     const screenshotContainer = document.getElementById('screenshotContainer');
     if (screenshotContainer) {
         screenshotContainer.classList.add('hidden');
@@ -608,18 +607,18 @@ function resetApplication() {
 } 
 
 // ========================= 
-// INITIALIZE & SCREENSHOT SETUP
+// INITIALIZE & SCREENSHOT
 // =========================
 window.lastAnalysisResult = null; 
 updateModeUI(); 
 buildMomentumInputs();
 
-// 1. Dynamically Load HTML2Canvas Library
+// Dynamically Load HTML2Canvas
 const scriptHtml2Canvas = document.createElement('script');
 scriptHtml2Canvas.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
 document.head.appendChild(scriptHtml2Canvas);
 
-// 2. Inject Screenshot Button at the very end of the container
+// Inject Screenshot Button
 setTimeout(() => {
     const screenshotContainer = document.createElement('div');
     screenshotContainer.id = "screenshotContainer";
@@ -638,35 +637,59 @@ setTimeout(() => {
         mainContainer.appendChild(screenshotContainer);
     }
 
-    // 3. Screenshot Click Logic
+    // Screenshot Capture Logic
     const screenshotBtn = document.getElementById('screenshotBtn');
     if (screenshotBtn) {
         screenshotBtn.addEventListener('click', () => {
             const btnContainer = document.getElementById('screenshotContainer');
+            btnContainer.classList.add('hidden'); // Hide button
             
-            // Temporarily hide button so it doesn't appear in the screenshot
-            btnContainer.classList.add('hidden');
-            
-            // Allow DOM to update hidden state, then capture
+            // FIX: Force Input/Select states into HTML DOM before snapping
+            document.querySelectorAll('input').forEach(input => {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    if (input.checked) input.setAttribute('checked', 'checked');
+                    else input.removeAttribute('checked');
+                } else {
+                    input.setAttribute('value', input.value);
+                }
+            });
+            document.querySelectorAll('select').forEach(select => {
+                const options = Array.from(select.options);
+                options.forEach(opt => {
+                    if (opt.selected) opt.setAttribute('selected', 'selected');
+                    else opt.removeAttribute('selected');
+                });
+            });
+
+            // Capture execution
             setTimeout(() => {
-                // Determine the background color depending on your setup
                 html2canvas(document.querySelector('.container'), {
-                    backgroundColor: "#111827", // Match the dark theme background
-                    scale: 2 // High resolution for clear text
+                    backgroundColor: "#111827",
+                    scale: window.devicePixelRatio || 2, // Enhances mobile crispness
+                    useCORS: true
                 }).then(canvas => {
-                    // Create an invisible link to trigger download
+                    // Extract PNG Data
+                    const imgData = canvas.toDataURL('image/png');
+                    
+                    // Attempt automatic download
                     const link = document.createElement('a');
                     link.download = `TradeScan-Result-${new Date().getTime()}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
+                    link.href = imgData;
                     
-                    // Restore button
-                    btnContainer.classList.remove('hidden');
+                    try {
+                        link.click();
+                    } catch (e) {
+                        // Fallback for strict mobile browsers (safari)
+                        const win = window.open();
+                        win.document.write('<img src="' + imgData + '" style="width:100%; height:auto;" />');
+                    }
+                    
+                    btnContainer.classList.remove('hidden'); // Restore button
                 }).catch(err => {
                     console.error("Screenshot failed:", err);
                     btnContainer.classList.remove('hidden');
                 });
-            }, 100);
+            }, 150);
         });
     }
-}, 500); // Small delay to ensure the primary container is fully rendered
+}, 500);
