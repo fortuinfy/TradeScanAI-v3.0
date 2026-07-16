@@ -178,7 +178,6 @@ function runAnalysis() {
         const currentTarget = safeNumber(document.getElementById("currentTarget").value);
         const quantity = safeNumber(document.getElementById("quantity").value); 
         
-        // BUG FIX: Passed 'ltp' inside the validation payload
         const activeValidation = validateActiveTradeInputs({ ltp, executedEntry, currentSL, currentTarget, quantity }); 
         
         if (!activeValidation.valid) { 
@@ -199,6 +198,10 @@ function runAnalysis() {
         
         window.lastAnalysisResult = result;
         renderResults(result); 
+        
+        // Show Screenshot Button once results are populated
+        const screenshotContainer = document.getElementById('screenshotContainer');
+        if (screenshotContainer) screenshotContainer.classList.remove('hidden');
     }
 } 
 
@@ -387,7 +390,6 @@ function renderResults(result) {
     }
 
     // Master 4: Momentum Analysis / Execution Readiness Card
-    // BUG FIX: Prevent rendering if verdict is AVOID or REMOVE
     if (currentMode === "new" && result.momentumScore !== undefined && result.verdict !== "AVOID") {
         container.innerHTML += `
         <div class="card">
@@ -429,7 +431,6 @@ function renderResults(result) {
     }
 
     // Master 5: Trade Plan Card
-    // BUG FIX: Prevent rendering if verdict is AVOID or REMOVE
     const tp = result.tradePlan;
     if (tp && result.verdict !== "AVOID" && result.verdict !== "REMOVE") {
         container.innerHTML += `
@@ -598,11 +599,74 @@ function resetApplication() {
     buildMomentumInputs(); 
     updateModeUI(); 
     window.lastAnalysisResult = null;
+
+    // Hide Screenshot button on reset
+    const screenshotContainer = document.getElementById('screenshotContainer');
+    if (screenshotContainer) {
+        screenshotContainer.classList.add('hidden');
+    }
 } 
 
 // ========================= 
-// INITIALIZE 
+// INITIALIZE & SCREENSHOT SETUP
 // =========================
 window.lastAnalysisResult = null; 
 updateModeUI(); 
 buildMomentumInputs();
+
+// 1. Dynamically Load HTML2Canvas Library
+const scriptHtml2Canvas = document.createElement('script');
+scriptHtml2Canvas.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+document.head.appendChild(scriptHtml2Canvas);
+
+// 2. Inject Screenshot Button at the very end of the container
+setTimeout(() => {
+    const screenshotContainer = document.createElement('div');
+    screenshotContainer.id = "screenshotContainer";
+    screenshotContainer.classList.add("hidden");
+    screenshotContainer.style.marginTop = "40px";
+    screenshotContainer.style.paddingBottom = "40px";
+    screenshotContainer.style.textAlign = "center";
+    screenshotContainer.innerHTML = `
+        <button id="screenshotBtn" style="background: linear-gradient(135deg, #10b981, #059669); width: 100%; max-width: 350px; margin: 0 auto; display: block; border-radius: 14px; padding: 16px 28px; font-weight: 700; color: white; cursor: pointer; border: none; font-size: 16px; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35); transition: 0.25s;">
+            📸 Grab a Screenshot
+        </button>
+    `;
+    
+    const mainContainer = document.querySelector('.container');
+    if (mainContainer) {
+        mainContainer.appendChild(screenshotContainer);
+    }
+
+    // 3. Screenshot Click Logic
+    const screenshotBtn = document.getElementById('screenshotBtn');
+    if (screenshotBtn) {
+        screenshotBtn.addEventListener('click', () => {
+            const btnContainer = document.getElementById('screenshotContainer');
+            
+            // Temporarily hide button so it doesn't appear in the screenshot
+            btnContainer.classList.add('hidden');
+            
+            // Allow DOM to update hidden state, then capture
+            setTimeout(() => {
+                // Determine the background color depending on your setup
+                html2canvas(document.querySelector('.container'), {
+                    backgroundColor: "#111827", // Match the dark theme background
+                    scale: 2 // High resolution for clear text
+                }).then(canvas => {
+                    // Create an invisible link to trigger download
+                    const link = document.createElement('a');
+                    link.download = `TradeScan-Result-${new Date().getTime()}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    // Restore button
+                    btnContainer.classList.remove('hidden');
+                }).catch(err => {
+                    console.error("Screenshot failed:", err);
+                    btnContainer.classList.remove('hidden');
+                });
+            }, 100);
+        });
+    }
+}, 500); // Small delay to ensure the primary container is fully rendered
