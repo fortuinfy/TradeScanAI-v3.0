@@ -35,8 +35,11 @@ function analyzeWatchlist(data) {
     // ========================= 
     // REMOVE 
     // ========================= 
-    // BUG FIX: Strict check for weakness or low momentum overriding the setup
-    if ( belowStopLoss || ltp < ema20 || ema20 < ema50 || rsi < 45 || setupScore < 50 || (advancedEnabled && weaknessDetected) || (advancedEnabled && momentumScore < 50) ) { 
+    // BUG FIX: Differentiate between Daily structural breakdown vs 15-min intraday consolidation.
+    // Intraday weakness will now fall back to "MONITOR" rather than forcing a "REMOVE".
+    const isDailyBreakdown = timeframe === "Daily" && (ltp < ema20 || ema20 < ema50 || rsi < 45 || (advancedEnabled && weaknessDetected) || (advancedEnabled && momentumScore < 50));
+    
+    if ( belowStopLoss || setupScore < 50 || isDailyBreakdown ) { 
         verdict = "REMOVE"; 
         confidence = 25; 
         setupGrade = "D"; 
@@ -46,8 +49,8 @@ function analyzeWatchlist(data) {
     // ========================= 
     // READY 
     // ========================= 
-    // BUG FIX: Requires momentum >= 60 if advanced momentum is turned on
-    else if ( timeframe === "15 Min" && aboveTriggerZone && strongTrend && setupScore >= 80 && healthyRSI && (!advancedEnabled || momentumScore >= 60) ) { 
+    // Requires strong intraday setup and momentum confirmation
+    else if ( timeframe === "15 Min" && aboveTriggerZone && strongTrend && setupScore >= 80 && healthyRSI && (!advancedEnabled || (momentumScore >= 60 && !weaknessDetected)) ) { 
         verdict = "READY"; 
         confidence = setupScore >= 90 ? 90 : 85; 
         setupGrade = setupScore >= 90 ? "A+" : "A"; 
@@ -57,6 +60,7 @@ function analyzeWatchlist(data) {
     // ========================= 
     // MONITOR 
     // ========================= 
+    // Catches intraday pullbacks and consolidations until they trigger
     else { 
         verdict = "MONITOR"; 
         confidence = setupScore >= 70 ? 70 : 60; 
