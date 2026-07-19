@@ -8,14 +8,10 @@
 function analyzeNewScanMode(data) { 
     const { stockName, timeframe, ltp, ema20, ema50, rsi, advancedEnabled = false, candles = [] } = data; 
     
-    // ========================= 
     // SETUP 
-    // =========================
     const setupResult = calculateSetupScores({ ltp, ema20, ema50, rsi, timeframe }); 
     
-    // ========================= 
     // MOMENTUM 
-    // ========================= 
     let momentumResult = { 
         momentumScore: 0,
         momentumTrend: "Not Available", 
@@ -28,10 +24,7 @@ function analyzeNewScanMode(data) {
         momentumResult = calculateNewScanMomentum({ candles }); 
     } 
     
-    // ========================= 
     // VERDICT
-    // =========================
-    // BUG FIX: Added weaknessDetected into the verdict payload
     const verdictResult = analyzeNewScan({ 
         timeframe, 
         setup: setupResult.setup,
@@ -41,14 +34,10 @@ function analyzeNewScanMode(data) {
         ltp, ema20, ema50, rsi, advancedEnabled 
     }); 
     
-    // ========================= 
     // TRADE PLAN 
-    // ========================= 
     const tradePlan = generateTradePlan({ ltp, setup: setupResult.setup }); 
     
-    // ========================= 
     // REASONS 
-    // =========================
     const reasons = generateNewScanReasons({ 
         verdict: verdictResult.verdict, 
         setup: setupResult.setup, 
@@ -80,16 +69,12 @@ function analyzeNewScanMode(data) {
 // WATCHLIST 
 // ========================= 
 function analyzeWatchlistMode(data) { 
-    const { stockName, timeframe, ltp, ema20, ema50, rsi, previousTriggerLow, previousTriggerHigh, previousSL, advancedEnabled = false, candles = [] } = data; 
+    const { stockName, timeframe, ltp, ema20, ema50, rsi, previousTriggerLow, previousTriggerHigh, previousSL, previousTarget, advancedEnabled = false, candles = [] } = data; 
     
-    // ========================= 
     // SETUP 
-    // =========================
     const setupResult = calculateSetupScores({ ltp, ema20, ema50, rsi, timeframe }); 
     
-    // ========================= 
     // MOMENTUM 
-    // ========================= 
     let momentumResult = { 
         readinessScore: 0, 
         readinessStatus: "MONITOR",
@@ -102,10 +87,7 @@ function analyzeWatchlistMode(data) {
         momentumResult = calculateWatchlistMomentum({ candles, ltp, previousTriggerLow, previousTriggerHigh }); 
     } 
     
-    // ========================= 
     // VERDICT
-    // =========================
-    // BUG FIX: Added weaknessDetected into the verdict payload
     const verdictResult = analyzeWatchlist({ 
         timeframe, 
         setup: setupResult.setup,
@@ -116,14 +98,15 @@ function analyzeWatchlistMode(data) {
         previousTriggerLow, previousTriggerHigh, previousSL, advancedEnabled 
     }); 
     
-    // ========================= 
-    // TRADE PLAN 
-    // ========================= 
-    const tradePlan = generateTradePlan({ ltp, setup: setupResult.setup }); 
+    // LOCKED TRADE PLAN (Bypassing Plan Generator)
+    const lockedTradePlan = {
+        triggerLow: previousTriggerLow,
+        triggerHigh: previousTriggerHigh,
+        stopLoss: previousSL,
+        target: previousTarget
+    };
     
-    // ========================= 
     // REASONS 
-    // =========================
     const reasons = generateWatchlistReasons({ 
         verdict: verdictResult.verdict, 
         setup: setupResult.setup, 
@@ -148,7 +131,7 @@ function analyzeWatchlistMode(data) {
         readinessScore: momentumResult.readinessScore, 
         triggerPressure: momentumResult.triggerPressure,
         volumeExpansion: momentumResult.volumeExpansion, 
-        tradePlan,
+        lockedTradePlan,
         reasons 
     }; 
 }
