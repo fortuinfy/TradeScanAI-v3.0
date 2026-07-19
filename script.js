@@ -161,13 +161,14 @@ function runAnalysis() {
         const previousTriggerLow = safeNumber(document.getElementById("previousTriggerLow").value);
         const previousTriggerHigh = safeNumber(document.getElementById("previousTriggerHigh").value); 
         const previousSL = safeNumber(document.getElementById("previousSL").value);
+        const previousTarget = safeNumber(document.getElementById("previousTarget").value);
         
-        if (previousTriggerLow <= 0 || previousTriggerHigh <= 0 || previousSL <= 0) { 
-            alert("Please enter Watchlist inputs."); 
+        if (previousTriggerLow <= 0 || previousTriggerHigh <= 0 || previousSL <= 0 || previousTarget <= 0) { 
+            alert("Please enter all Watchlist Plan inputs (Trigger Zone, SL, and Target)."); 
             return;
         } 
         
-        result = analyzeWatchlistMode({ stockName, timeframe, ltp, ema20, ema50, rsi, previousTriggerLow, previousTriggerHigh, previousSL, advancedEnabled, candles }); 
+        result = analyzeWatchlistMode({ stockName, timeframe, ltp, ema20, ema50, rsi, previousTriggerLow, previousTriggerHigh, previousSL, previousTarget, advancedEnabled, candles }); 
     } 
     // ===================== 
     // ACTIVE TRADE 
@@ -199,7 +200,6 @@ function runAnalysis() {
         window.lastAnalysisResult = result;
         renderResults(result); 
         
-        // Show Screenshot Button once results are populated
         const screenshotContainer = document.getElementById('screenshotContainer');
         if (screenshotContainer) screenshotContainer.classList.remove('hidden');
     }
@@ -254,7 +254,6 @@ function renderResults(result) {
     // ========================= 
     if (currentMode === "active") {
         
-        // Master 1: Verdict Card
         container.innerHTML += `
         <div class="card">
             <div class="card-header"><h3>Active Trade Verdict</h3></div>
@@ -274,7 +273,6 @@ function renderResults(result) {
             </div>
         </div>`;
 
-        // Master 2: Trade Metrics Card
         container.innerHTML += `
         <div class="card">
             <div class="card-header"><h3>Trade Metrics</h3></div>
@@ -294,7 +292,6 @@ function renderResults(result) {
             </div>
         </div>`;
 
-        // Master 3: Momentum Card (If Enabled)
         if (result.tradeMomentumScore !== undefined) { 
             container.innerHTML += `
             <div class="card">
@@ -316,7 +313,6 @@ function renderResults(result) {
             </div>`;
         }
         
-        // Master Reasons Card
         renderReasons(result.reasons, result.badges); 
         hidePositionSize(); 
         return; 
@@ -326,7 +322,6 @@ function renderResults(result) {
     // NEW SCAN / WATCHLIST 
     // ========================= 
     
-    // Master 1: Verdict Card
     container.innerHTML += `
     <div class="card">
         <div class="card-header"><h3>Final Verdict</h3></div>
@@ -347,7 +342,6 @@ function renderResults(result) {
         </div>
     </div>`;
 
-    // Master 2: Setup Analysis Card
     container.innerHTML += `
     <div class="card">
         <div class="card-header"><h3>Setup Analysis</h3></div>
@@ -367,7 +361,6 @@ function renderResults(result) {
         </div>
     </div>`;
 
-    // Master 3: Setup Scores Card
     if (result.cbScore !== undefined) { 
         container.innerHTML += `
         <div class="card">
@@ -389,7 +382,6 @@ function renderResults(result) {
         </div>`;
     }
 
-    // Master 4: Momentum Analysis / Execution Readiness Card
     if (currentMode === "new" && result.momentumScore !== undefined && result.verdict !== "AVOID") {
         container.innerHTML += `
         <div class="card">
@@ -430,12 +422,16 @@ function renderResults(result) {
         </div>`;
     }
 
-    // Master 5: Trade Plan Card
-    const tp = result.tradePlan;
+    // =========================
+    // DYNAMIC TRADE PLAN CARD
+    // =========================
+    const tp = currentMode === "watchlist" ? result.lockedTradePlan : result.tradePlan;
+    const cardTitle = currentMode === "watchlist" ? "Original Trade Plan" : "Trade Plan";
+
     if (tp && result.verdict !== "AVOID" && result.verdict !== "REMOVE") {
         container.innerHTML += `
         <div class="card">
-            <div class="card-header"><h3>Trade Plan</h3></div>
+            <div class="card-header"><h3>${cardTitle}</h3></div>
             <div class="sub-card-grid">
                 <div class="sub-card">
                     <h4>Entry Zone</h4>
@@ -453,10 +449,7 @@ function renderResults(result) {
         </div>`;
     }
 
-    // Master 6: Analysis Reasons Card
     renderReasons(result.reasons, result.badges); 
-
-    // Master 7: Position Size Calculator Handler
     handlePositionSizeVisibility(result);
 } 
 
@@ -512,39 +505,49 @@ function handlePositionSizeVisibility(result) {
     } 
 } 
 
-// ========================= 
-// HIDE POSITION SIZE 
-// ========================= 
 function hidePositionSize() { 
     document.getElementById("positionSizeCard").classList.add("hidden"); 
 } 
 
 // ========================= 
-// POSITION SIZE BUTTON 
+// POSITION SIZE BUTTON (UPDATED LOGIC)
 // ========================= 
 document.getElementById("calculatePositionBtn").addEventListener("click", calculatePosition);
 
 function calculatePosition() { 
     const capital = safeNumber(document.getElementById("capitalInput").value); 
     const riskPercent = safeNumber(document.getElementById("riskPercentInput").value); 
+    const entryPrice = safeNumber(document.getElementById("entryPriceInput").value);
     
     const triggerHighElement = document.querySelector("#resultsContainer"); 
-    if (!triggerHighElement) { 
-        return;
-    } 
+    if (!triggerHighElement) return;
     
-    if (!window.lastAnalysisResult || !window.lastAnalysisResult.tradePlan) { 
+    if (!window.lastAnalysisResult || (!window.lastAnalysisResult.tradePlan && !window.lastAnalysisResult.lockedTradePlan)) { 
         alert("Run analysis first.");
         return; 
     } 
+
+    if (entryPrice <= 0) {
+        alert("Please enter a valid Actual Entry Price.");
+        return;
+    }
     
-    const tradePlan = window.lastAnalysisResult.tradePlan; 
+    // Extract correct Stop Loss based on active mode
+    let stopLoss = 0;
+    if (currentMode === "watchlist" && window.lastAnalysisResult.lockedTradePlan) {
+        stopLoss = window.lastAnalysisResult.lockedTradePlan.stopLoss;
+    } else if (currentMode === "new" && window.lastAnalysisResult.tradePlan) {
+        stopLoss = window.lastAnalysisResult.tradePlan.stopLoss;
+    } else {
+        alert("Trade plan missing.");
+        return;
+    }
     
     const positionResult = calculatePositionSize({ 
         capital, 
         riskPercent, 
-        entryPrice: tradePlan.executionPrice, 
-        stopLoss: tradePlan.stopLoss 
+        entryPrice: entryPrice, 
+        stopLoss: stopLoss 
     }); 
     
     renderPositionResult(positionResult);
@@ -642,9 +645,8 @@ setTimeout(() => {
     if (screenshotBtn) {
         screenshotBtn.addEventListener('click', () => {
             const btnContainer = document.getElementById('screenshotContainer');
-            btnContainer.classList.add('hidden'); // Hide button
+            btnContainer.classList.add('hidden'); 
             
-            // FIX: Force Input/Select states into HTML DOM before snapping
             document.querySelectorAll('input').forEach(input => {
                 if (input.type === 'checkbox' || input.type === 'radio') {
                     if (input.checked) input.setAttribute('checked', 'checked');
@@ -661,30 +663,23 @@ setTimeout(() => {
                 });
             });
 
-            // Capture execution
             setTimeout(() => {
                 html2canvas(document.querySelector('.container'), {
                     backgroundColor: "#111827",
-                    scale: window.devicePixelRatio || 2, // Enhances mobile crispness
+                    scale: window.devicePixelRatio || 2, 
                     useCORS: true
                 }).then(canvas => {
-                    // Extract PNG Data
                     const imgData = canvas.toDataURL('image/png');
-                    
-                    // Attempt automatic download
                     const link = document.createElement('a');
                     link.download = `TradeScan-Result-${new Date().getTime()}.png`;
                     link.href = imgData;
-                    
                     try {
                         link.click();
                     } catch (e) {
-                        // Fallback for strict mobile browsers (safari)
                         const win = window.open();
                         win.document.write('<img src="' + imgData + '" style="width:100%; height:auto;" />');
                     }
-                    
-                    btnContainer.classList.remove('hidden'); // Restore button
+                    btnContainer.classList.remove('hidden'); 
                 }).catch(err => {
                     console.error("Screenshot failed:", err);
                     btnContainer.classList.remove('hidden');
