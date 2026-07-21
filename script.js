@@ -80,6 +80,7 @@ function buildMomentumInputs() {
     container.innerHTML = "";
     
     for (let i = 1; i <= 5; i++) {
+        // BUG FIX: Added Neutral Option
         container.innerHTML += `
         <div class="candle-block">
             <h3>Candle ${i}</h3>
@@ -92,6 +93,7 @@ function buildMomentumInputs() {
                     <label>Nature</label>
                     <select id="nature${i}">
                         <option value="Bullish">Bullish</option>
+                        <option value="Neutral">Neutral</option>
                         <option value="Bearish">Bearish</option>
                     </select>
                 </div>
@@ -510,7 +512,7 @@ function hidePositionSize() {
 } 
 
 // ========================= 
-// POSITION SIZE BUTTON (UPDATED LOGIC)
+// POSITION SIZE BUTTON
 // ========================= 
 document.getElementById("calculatePositionBtn").addEventListener("click", calculatePosition);
 
@@ -532,7 +534,6 @@ function calculatePosition() {
         return;
     }
     
-    // Extract correct Stop Loss based on active mode
     let stopLoss = 0;
     if (currentMode === "watchlist" && window.lastAnalysisResult.lockedTradePlan) {
         stopLoss = window.lastAnalysisResult.lockedTradePlan.stopLoss;
@@ -616,12 +617,10 @@ window.lastAnalysisResult = null;
 updateModeUI(); 
 buildMomentumInputs();
 
-// Dynamically Load HTML2Canvas
 const scriptHtml2Canvas = document.createElement('script');
 scriptHtml2Canvas.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
 document.head.appendChild(scriptHtml2Canvas);
 
-// Inject Screenshot Button
 setTimeout(() => {
     const screenshotContainer = document.createElement('div');
     screenshotContainer.id = "screenshotContainer";
@@ -640,7 +639,6 @@ setTimeout(() => {
         mainContainer.appendChild(screenshotContainer);
     }
 
-    // Screenshot Capture Logic
     const screenshotBtn = document.getElementById('screenshotBtn');
     if (screenshotBtn) {
         screenshotBtn.addEventListener('click', () => {
