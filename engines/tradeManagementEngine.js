@@ -1,256 +1,104 @@
-// =========================
-// ACTIVE TRADE ENGINE
-// =========================
-
-function manageActiveTrade(data) {
-
-  const {
-
-    ltp,
-
-    executedEntry,
-    currentSL,
-    currentTarget,
-
-    momentumScore = 0,
-
-    weaknessDetected = false,
-
-    rsi,
-
-    ema20,
-    ema50
-
-  } = data;
-
-  let tradeVerdict =
-    "CONTINUE HOLDING";
-
-  let priority =
-    "MEDIUM";
-
-  let suggestedSL =
-    currentSL;
-
-  let suggestedTarget =
-    currentTarget;
-
-  let tradeHealth =
-    "Healthy";
-
-  const tradeReasons = [];
-
-  // =========================
-  // PNL %
-  // =========================
-
-  const pnlPercent =
-
-    (
-
-      (
-
-        ltp -
-
-        executedEntry
-
-      ) /
-
-      executedEntry
-
-    ) * 100;
-
-  // =========================
-  // TREND
-  // =========================
-
-  const bullishTrend =
-
-    ltp > ema20 &&
-    ema20 > ema50;
-
-  // =========================
-  // DISTANCE TO TARGET
-  // =========================
-
-  const distanceToTarget =
-
-    (
-
-      (
-
-        currentTarget -
-
-        ltp
-
-      ) /
-
-      ltp
-
-    ) * 100;
-
-  // =========================
-  // PRIORITY 1
-  // FULL EXIT
-  // =========================
-
-  if (
-
-    ltp < ema20 ||
-
-    rsi < 45 ||
-
-    momentumScore < 40 ||
-
-    weaknessDetected
-
-  ) {
-
-    tradeVerdict =
-      "FULL EXIT";
-
-    priority =
-      "HIGH";
-
-    tradeHealth =
-      "Weak";
-
-    tradeReasons.push(
-      "Trend structure and momentum have weakened."
-    );
-
-  }
-
-  // =========================
-  // PRIORITY 2
-  // PARTIAL EXIT
-  // =========================
-
-  else if (
-
-    distanceToTarget <= 3 &&
-
-    momentumScore < 65
-
-  ) {
-
-    tradeVerdict =
-      "PARTIAL EXIT";
-
-    priority =
-      "MEDIUM";
-
-    tradeHealth =
-      "Extended";
-
-    tradeReasons.push(
-      "Price is near target with slowing momentum."
-    );
-
-  }
-
-  // =========================
-  // PRIORITY 3
-  // TRAIL STOP LOSS
-  // =========================
-
-  else if (
-
-    pnlPercent >= 5 &&
-
-    bullishTrend
-
-  ) {
-
-    tradeVerdict =
-      "TRAIL STOP LOSS";
-
-    priority =
-      "HIGH";
-
-    suggestedSL =
-      ema20;
-
-    tradeHealth =
-      "Profitable";
-
-    tradeReasons.push(
-      "Trade is profitable and stop loss should be trailed."
-    );
-
-  }
-
-  // =========================
-  // PRIORITY 4
-  // HOLD
-  // =========================
-
-  else if (
-
-    bullishTrend &&
-
-    momentumScore >= 65 &&
-
-    !weaknessDetected
-
-  ) {
-
-    tradeVerdict =
-      "CONTINUE HOLDING";
-
-    priority =
-      "HIGH";
-
-    tradeHealth =
-      "Strong";
-
-    tradeReasons.push(
-      "Trend and momentum remain healthy."
-    );
-
-  }
-
-  // =========================
-  // DEFAULT HOLD
-  // =========================
-
-  else {
-
-    tradeVerdict =
-      "CONTINUE HOLDING";
-
-    priority =
-      "MEDIUM";
-
-    tradeHealth =
-      "Neutral";
-
-    tradeReasons.push(
-      "Trade remains valid but requires monitoring."
-    );
-
-  }
-
-  // =========================
-  // RETURN
-  // =========================
-
-  return {
-
-    tradeVerdict,
-
-    priority,
-
-    suggestedSL,
-
-    suggestedTarget,
-
-    tradeHealth,
-
-    tradeReasons,
-
-    pnlPercent
-
-  };
-
+// ========================= 
+// ACTIVE TRADE ENGINE 
+// ========================= 
+function manageActiveTrade(data) { 
+    const { ltp, executedEntry, currentSL, currentTarget, momentumScore = 0, weaknessDetected = false, rsi, ema20, ema50 } = data; 
+    
+    let tradeVerdict = "CONTINUE HOLDING"; 
+    let priority = "LOW"; 
+    let suggestedSL = currentSL; 
+    let suggestedTarget = currentTarget; 
+    let tradeHealth = "Healthy"; 
+    const tradeReasons = []; 
+
+    // ========================= 
+    // CALCULATIONS
+    // ========================= 
+    const pnlPercent = ( ( ltp - executedEntry ) / executedEntry ) * 100; 
+    const bullishTrend = ltp > ema20 && ema20 > ema50; 
+    const distanceToTarget = ( ( currentTarget - ltp ) / ltp ) * 100; 
+    
+    // NEW: Calculate exact percentage distance from the 20 EMA (Negative means below EMA)
+    const distanceFromEMA20 = ( ( ltp - ema20 ) / ema20 ) * 100;
+
+    // ========================= 
+    // PRIORITY 1: HARD EXITS (STOP LOSS OR TARGET HIT)
+    // ========================= 
+    if ( ltp <= currentSL ) { 
+        tradeVerdict = "FULL EXIT"; 
+        priority = "URGENT"; 
+        tradeHealth = "Broken (SL Hit)"; 
+        tradeReasons.push( "Price has hit or breached the hard Stop Loss." ); 
+    } 
+    else if ( ltp >= currentTarget ) {
+        tradeVerdict = "FULL EXIT"; 
+        priority = "HIGH"; 
+        tradeHealth = "Target Achieved"; 
+        tradeReasons.push( "Price has successfully reached the final target level. Book full profits." ); 
+    }
+    // ========================= 
+    // PRIORITY 2: STRUCTURAL WEAKNESS (DEFENSIVE PARTIAL EXIT)
+    // ========================= 
+    else {
+        // NEW LOGIC: A structural breakdown is only confirmed if price drops MORE than 1.5% below the 20 EMA, OR breaks the 50 EMA entirely.
+        const isStructuralBreakdown = distanceFromEMA20 <= -1.5 || ltp < ema50;
+
+        if ( isStructuralBreakdown || rsi < 45 || momentumScore < 40 || weaknessDetected ) { 
+            tradeVerdict = "PARTIAL EXIT"; 
+            priority = "HIGH"; 
+            tradeHealth = "Weakening"; 
+            tradeReasons.push( "Trend structure or momentum is showing significant weakness. Consider reducing risk." ); 
+            
+            // Suggest tightening the SL to the 50 EMA if it's currently lower to protect against a crash
+            if (currentSL < ema50 && ltp > ema50) {
+                suggestedSL = parseFloat(ema50.toFixed(2));
+                tradeReasons.push( "Suggested tightening Stop Loss to EMA50." );
+            }
+        } 
+        // ========================= 
+        // PRIORITY 3: NEAR TARGET / SLOWING MOMENTUM
+        // ========================= 
+        else if ( distanceToTarget <= 3 && momentumScore < 65 ) { 
+            tradeVerdict = "PARTIAL EXIT"; 
+            priority = "MEDIUM"; 
+            tradeHealth = "Extended"; 
+            tradeReasons.push( "Price is very near target but momentum is slowing. Secure partial profits." ); 
+        } 
+        // ========================= 
+        // PRIORITY 4: PROFIT PROTECTION (TRAIL STOP LOSS)
+        // ========================= 
+        else if ( pnlPercent >= 5 && bullishTrend ) { 
+            tradeVerdict = "TRAIL STOP LOSS"; 
+            priority = "HIGH"; 
+            
+            // Suggest trailing to EMA20 if it's higher than the current SL
+            if (ema20 > currentSL) {
+                suggestedSL = parseFloat(ema20.toFixed(2));
+            }
+            
+            tradeHealth = "Profitable"; 
+            tradeReasons.push( "Trade is well in profit. Trail stop loss to protect capital." ); 
+        } 
+        // ========================= 
+        // DEFAULT: HOLD / PULLBACK TOLERANCE
+        // ========================= 
+        else { 
+            tradeVerdict = "CONTINUE HOLDING"; 
+            priority = "LOW"; 
+            
+            // NEW LOGIC: Provide psychological feedback if it's in a safe pullback zone
+            if (ltp < ema20 && distanceFromEMA20 > -1.5) {
+                tradeHealth = "Pullback";
+                tradeReasons.push( "Price is experiencing a normal pullback near the 20 EMA. Trend remains structurally intact." );
+            } else {
+                tradeHealth = "Stable"; 
+                tradeReasons.push( "Trade is progressing normally within risk parameters. Hold position." ); 
+            }
+        } 
+    }
+
+    // ========================= 
+    // RETURN 
+    // ========================= 
+    return { tradeVerdict, priority, suggestedSL, suggestedTarget, tradeHealth, tradeReasons, pnlPercent }; 
 }
