@@ -15,7 +15,7 @@ setInterval(updateDateTime, 1000);
 updateDateTime(); 
 
 // ========================= 
-// MODE SELECTOR 
+// MODE SELECTOR (FRESH START MECHANIC)
 // ========================= 
 const modeButtons = document.querySelectorAll(".mode-btn"); 
 modeButtons.forEach(btn => { 
@@ -23,7 +23,9 @@ modeButtons.forEach(btn => {
         modeButtons.forEach(b => b.classList.remove("active-mode"));
         btn.classList.add("active-mode"); 
         currentMode = btn.dataset.mode;
-        updateModeUI(); 
+        
+        // BUG FIX: Forces a complete application wipe when switching modes
+        resetApplication(); 
     }); 
 });
 
@@ -65,11 +67,13 @@ function updateModeUI() {
 } 
 
 // ========================= 
-// ADVANCED MOMENTUM 
+// ADVANCED MOMENTUM (CLEAN SLATE MECHANIC)
 // ========================= 
 const advancedToggle = document.getElementById("advancedToggle");
 advancedToggle.addEventListener("change", () => { 
     document.getElementById("momentumSection").classList.toggle("hidden", !advancedToggle.checked); 
+    // BUG FIX: Automatically wipe and rebuild candle inputs on toggle
+    buildMomentumInputs();
 }); 
 
 // =========================
@@ -80,7 +84,6 @@ function buildMomentumInputs() {
     container.innerHTML = "";
     
     for (let i = 1; i <= 5; i++) {
-        // BUG FIX: Added Neutral Option
         container.innerHTML += `
         <div class="candle-block">
             <h3>Candle ${i}</h3>
