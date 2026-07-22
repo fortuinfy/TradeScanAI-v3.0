@@ -2,7 +2,8 @@
 // ACTIVE TRADE ENGINE 
 // ========================= 
 function manageActiveTrade(data) { 
-    const { ltp, executedEntry, currentSL, currentTarget, momentumScore = 0, weaknessDetected = false, rsi, ema20, ema50 } = data; 
+    // BUG FIX: Destructured advancedEnabled to prevent false momentum panics
+    const { ltp, executedEntry, currentSL, currentTarget, momentumScore = 0, weaknessDetected = false, rsi, ema20, ema50, advancedEnabled = false } = data; 
     
     let tradeVerdict = "CONTINUE HOLDING"; 
     let priority = "LOW"; 
@@ -18,7 +19,7 @@ function manageActiveTrade(data) {
     const bullishTrend = ltp > ema20 && ema20 > ema50; 
     const distanceToTarget = ( ( currentTarget - ltp ) / ltp ) * 100; 
     
-    // NEW: Calculate exact percentage distance from the 20 EMA (Negative means below EMA)
+    // Calculate exact percentage distance from the 20 EMA (Negative means below EMA)
     const distanceFromEMA20 = ( ( ltp - ema20 ) / ema20 ) * 100;
 
     // ========================= 
@@ -40,10 +41,11 @@ function manageActiveTrade(data) {
     // PRIORITY 2: STRUCTURAL WEAKNESS (DEFENSIVE PARTIAL EXIT)
     // ========================= 
     else {
-        // NEW LOGIC: A structural breakdown is only confirmed if price drops MORE than 1.5% below the 20 EMA, OR breaks the 50 EMA entirely.
+        // A structural breakdown is only confirmed if price drops MORE than 1.5% below the 20 EMA, OR breaks the 50 EMA entirely.
         const isStructuralBreakdown = distanceFromEMA20 <= -1.5 || ltp < ema50;
 
-        if ( isStructuralBreakdown || rsi < 45 || momentumScore < 40 || weaknessDetected ) { 
+        // BUG FIX: momentumScore < 40 is only checked if advancedEnabled is TRUE
+        if ( isStructuralBreakdown || rsi < 45 || (advancedEnabled && momentumScore < 40) || (advancedEnabled && weaknessDetected) ) { 
             tradeVerdict = "PARTIAL EXIT"; 
             priority = "HIGH"; 
             tradeHealth = "Weakening"; 
@@ -58,7 +60,8 @@ function manageActiveTrade(data) {
         // ========================= 
         // PRIORITY 3: NEAR TARGET / SLOWING MOMENTUM
         // ========================= 
-        else if ( distanceToTarget <= 3 && momentumScore < 65 ) { 
+        // BUG FIX: Only penalize for low momentum near target if Advanced Momentum is actually ON
+        else if ( distanceToTarget <= 3 && advancedEnabled && momentumScore < 65 ) { 
             tradeVerdict = "PARTIAL EXIT"; 
             priority = "MEDIUM"; 
             tradeHealth = "Extended"; 
@@ -86,7 +89,7 @@ function manageActiveTrade(data) {
             tradeVerdict = "CONTINUE HOLDING"; 
             priority = "LOW"; 
             
-            // NEW LOGIC: Provide psychological feedback if it's in a safe pullback zone
+            // Provide psychological feedback if it's in a safe pullback zone
             if (ltp < ema20 && distanceFromEMA20 > -1.5) {
                 tradeHealth = "Pullback";
                 tradeReasons.push( "Price is experiencing a normal pullback near the 20 EMA. Trend remains structurally intact." );
