@@ -161,6 +161,8 @@ function runAnalysis() {
     // WATCHLIST 
     // ===================== 
     else if (currentMode === "watchlist") { 
+        // BUG FIX: Extract previous setup
+        const previousSetupWatchlist = document.getElementById("previousSetupWatchlist").value;
         const previousTriggerLow = safeNumber(document.getElementById("previousTriggerLow").value);
         const previousTriggerHigh = safeNumber(document.getElementById("previousTriggerHigh").value); 
         const previousSL = safeNumber(document.getElementById("previousSL").value);
@@ -171,12 +173,14 @@ function runAnalysis() {
             return;
         } 
         
-        result = analyzeWatchlistMode({ stockName, timeframe, ltp, ema20, ema50, rsi, previousTriggerLow, previousTriggerHigh, previousSL, previousTarget, advancedEnabled, candles }); 
+        result = analyzeWatchlistMode({ stockName, timeframe, ltp, ema20, ema50, rsi, previousSetup: previousSetupWatchlist, previousTriggerLow, previousTriggerHigh, previousSL, previousTarget, advancedEnabled, candles }); 
     } 
     // ===================== 
     // ACTIVE TRADE 
     // =====================
     else if (currentMode === "active") { 
+        // BUG FIX: Extract previous setup
+        const previousSetupActive = document.getElementById("previousSetupActive").value;
         const executedEntry = safeNumber(document.getElementById("executedEntry").value);
         const currentSL = safeNumber(document.getElementById("currentSL").value);
         const currentTarget = safeNumber(document.getElementById("currentTarget").value);
@@ -189,7 +193,7 @@ function runAnalysis() {
             return; 
         } 
         
-        result = analyzeActiveTrade({ stockName, timeframe, ltp, ema20, ema50, rsi, executedEntry, currentSL, currentTarget, quantity, advancedEnabled, candles });
+        result = analyzeActiveTrade({ stockName, timeframe, ltp, ema20, ema50, rsi, previousSetup: previousSetupActive, executedEntry, currentSL, currentTarget, quantity, advancedEnabled, candles });
     } 
 
     // ========================= 
@@ -317,7 +321,7 @@ function renderResults(result) {
         }
 
         // =========================
-        // NEW: PARTIAL EXIT PLAN CARD
+        // PARTIAL EXIT PLAN CARD
         // =========================
         if (result.partialExitPlan) {
             container.innerHTML += `
@@ -342,6 +346,7 @@ function renderResults(result) {
             </div>`;
         }
         
+        // Render Active Trade specific reasons (Now pulling locked setup if needed)
         renderReasons(result.reasons, result.badges); 
         hidePositionSize(); 
         return; 
