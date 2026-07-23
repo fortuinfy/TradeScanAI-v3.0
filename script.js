@@ -24,7 +24,6 @@ modeButtons.forEach(btn => {
         btn.classList.add("active-mode"); 
         currentMode = btn.dataset.mode;
         
-        // BUG FIX: Forces a complete application wipe when switching modes
         resetApplication(); 
     }); 
 });
@@ -72,7 +71,6 @@ function updateModeUI() {
 const advancedToggle = document.getElementById("advancedToggle");
 advancedToggle.addEventListener("change", () => { 
     document.getElementById("momentumSection").classList.toggle("hidden", !advancedToggle.checked); 
-    // BUG FIX: Automatically wipe and rebuild candle inputs on toggle
     buildMomentumInputs();
 }); 
 
@@ -313,6 +311,32 @@ function renderResults(result) {
                     <div class="sub-card">
                         <h4>Participation</h4>
                         <p>${result.participationTrend}</p>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        // =========================
+        // NEW: PARTIAL EXIT PLAN CARD
+        // =========================
+        if (result.partialExitPlan) {
+            container.innerHTML += `
+            <div class="card" style="border-left: 4px solid #f59e0b;">
+                <div class="card-header"><h3 style="color: #f59e0b;">Partial Execution Plan</h3></div>
+                <div class="sub-card-grid">
+                    <div class="sub-card">
+                        <h4>Action Required</h4>
+                        <p style="color: #f59e0b; font-weight: bold;">${result.partialExitPlan.actionText}</p>
+                    </div>
+                    <div class="sub-card">
+                        <h4>Shares to Sell</h4>
+                        <p>${result.partialExitPlan.exitQuantity} shares @ ₹${result.partialExitPlan.exitPrice}</p>
+                    </div>
+                    <div class="sub-card">
+                        <h4>Realized P&L</h4>
+                        <p class="${result.partialExitPlan.realizedPnL >= 0 ? 'bullish' : 'bearish'}">
+                            ₹${result.partialExitPlan.realizedPnL > 0 ? '+' : ''}${result.partialExitPlan.realizedPnL}
+                        </p>
                     </div>
                 </div>
             </div>`;
