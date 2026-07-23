@@ -59,6 +59,18 @@ function manageActiveTrade(data) {
         }
     } 
     // ========================= 
+    // PRIORITY 3: NORMAL RISK (OFFENSIVE 25% EXIT)
+    // BUG FIX: Shifted above Medium Risk. Target proximity overrides generic momentum weakness.
+    // ========================= 
+    else if ( distanceToTarget <= 3 && advancedEnabled && momentumScore < 65 ) { 
+        tradeVerdict = "PARTIAL EXIT"; 
+        priority = "LOW"; 
+        tradeHealth = "Extended"; 
+        tradeReasons.push( "Price is very near target but momentum is slowing. Offensively secure partial profits." ); 
+        
+        partialExitPlan = buildPartialExit(quantity, 0.25, "Normal Risk", ltp, executedEntry);
+    } 
+    // ========================= 
     // PRIORITY 2B: MEDIUM RISK (DEFENSIVE 50% EXIT)
     // ========================= 
     else if ( isStructuralBreakdown || isMomentumDead ) { 
@@ -73,17 +85,6 @@ function manageActiveTrade(data) {
             suggestedSL = parseFloat(ema50.toFixed(2));
             tradeReasons.push( "Suggested tightening Stop Loss to EMA50 for the remaining balance." );
         }
-    } 
-    // ========================= 
-    // PRIORITY 3: NORMAL RISK (OFFENSIVE 25% EXIT)
-    // ========================= 
-    else if ( distanceToTarget <= 3 && advancedEnabled && momentumScore < 65 ) { 
-        tradeVerdict = "PARTIAL EXIT"; 
-        priority = "LOW"; 
-        tradeHealth = "Extended"; 
-        tradeReasons.push( "Price is very near target but momentum is slowing. Offensively secure partial profits." ); 
-        
-        partialExitPlan = buildPartialExit(quantity, 0.25, "Normal Risk", ltp, executedEntry);
     } 
     // ========================= 
     // PRIORITY 4: PROFIT PROTECTION (TRAIL STOP LOSS)
