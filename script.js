@@ -75,7 +75,7 @@ advancedToggle.addEventListener("change", () => {
 }); 
 
 // =========================
-// CANDLE INPUT BUILDER 
+// CANDLE INPUT BUILDER (UPDATED UI)
 // ========================= 
 function buildMomentumInputs() { 
     const container = document.getElementById("candlesContainer"); 
@@ -100,7 +100,18 @@ function buildMomentumInputs() {
                 </div>
                 <div class="input-group">
                     <label>Volume</label>
-                    <input type="text" id="volume${i}" placeholder="1.5Cr">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" id="volume${i}" placeholder="1.5" step="0.01" style="width: 60%;">
+                        <select id="volumeMulti${i}" style="width: 40%;">
+                            <option value="">-</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="Cr">Cr</option>
+                            <option value="B">B</option>
+                            <option value="T">T</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>`;
@@ -161,7 +172,6 @@ function runAnalysis() {
     // WATCHLIST 
     // ===================== 
     else if (currentMode === "watchlist") { 
-        // BUG FIX: Extract previous setup
         const previousSetupWatchlist = document.getElementById("previousSetupWatchlist").value;
         const previousTriggerLow = safeNumber(document.getElementById("previousTriggerLow").value);
         const previousTriggerHigh = safeNumber(document.getElementById("previousTriggerHigh").value); 
@@ -179,7 +189,6 @@ function runAnalysis() {
     // ACTIVE TRADE 
     // =====================
     else if (currentMode === "active") { 
-        // BUG FIX: Extract previous setup
         const previousSetupActive = document.getElementById("previousSetupActive").value;
         const executedEntry = safeNumber(document.getElementById("executedEntry").value);
         const currentSL = safeNumber(document.getElementById("currentSL").value);
@@ -213,15 +222,22 @@ function runAnalysis() {
 } 
 
 // ========================= 
-// COLLECT CANDLES 
+// COLLECT CANDLES (MERGE DATA)
 // =========================
 function collectCandles() { 
     const candles = []; 
     for (let i = 1; i <= 5; i++) {
+        // Extract the raw number and the multiplier dropdown
+        const volNum = document.getElementById(`volume${i}`).value.trim();
+        const volMulti = document.getElementById(`volumeMulti${i}`).value;
+        
+        // Stitch them together so the parser understands (e.g., "1.5" + "Cr" = "1.5Cr")
+        const finalVolume = volNum ? volNum + volMulti : "";
+
         candles.push({ 
             close: safeNumber(document.getElementById(`close${i}`).value), 
             nature: document.getElementById(`nature${i}`).value, 
-            volume: document.getElementById(`volume${i}`).value 
+            volume: finalVolume 
         });
     } 
     return candles; 
@@ -346,7 +362,6 @@ function renderResults(result) {
             </div>`;
         }
         
-        // Render Active Trade specific reasons (Now pulling locked setup if needed)
         renderReasons(result.reasons, result.badges); 
         hidePositionSize(); 
         return; 
