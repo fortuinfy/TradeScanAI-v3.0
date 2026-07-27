@@ -49,5 +49,6 @@ function parseVolume(volumeInput) {
         return ( parseFloat( value.replace("K", "") ) * 1000 ); 
     } 
     
+    // If the dropdown was left empty, it returns the raw number (e.g., 500)
     return parseFloat(value) || 0; 
 }
