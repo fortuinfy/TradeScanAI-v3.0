@@ -4,7 +4,7 @@
 function analyzeWatchlistMode(data) { 
     const { 
         timeframe = "15 Min", 
-        originalSetup = "CB", 
+        previousSetup = "CB", 
         ltp, 
         ema20, 
         ema50, 
@@ -23,7 +23,7 @@ function analyzeWatchlistMode(data) {
         ema20, 
         ema50, 
         rsi, 
-        lockedSetup: originalSetup 
+        lockedSetup: previousSetup 
     }); 
 
     // 2. DEFAULT TRADE PLAN (From User Input)
