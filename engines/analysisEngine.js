@@ -33,43 +33,137 @@ function analyzeNewScanMode(data) {
 // WATCHLIST 
 // ========================= 
 function analyzeWatchlistMode(data) { 
-    // Extract previousSetup to pass to the setup engine
-    const { stockName, timeframe, ltp, ema20, ema50, rsi, previousSetup, previousTriggerLow, previousTriggerHigh, previousSL, previousTarget, advancedEnabled = false, candles = [] } = data; 
-    
-    // SETUP - Passing the locked setup to prevent "Setup Drift"
-    const setupResult = calculateSetupScores({ ltp, ema20, ema50, rsi, timeframe, lockedSetup: previousSetup }); 
-    
-    // TRADE PLAN - Default to the user's manual inputs
-    let lockedTradePlan = { triggerLow: previousTriggerLow, triggerHigh: previousTriggerHigh, stopLoss: previousSL, target: previousTarget }; 
-    
-    // MOMENTUM 
-    let momentumResult = { readinessScore: 0, readinessStatus: "Not Available", triggerPressure: 0, volumeExpansion: "Not Available", weaknessDetected: false }; 
-    if ( advancedEnabled && candles.length >= 5 ) { 
-        momentumResult = calculateWatchlistMomentum({ candles, ltp, previousTriggerLow, previousTriggerHigh }); 
-    } 
-    
-    // VERDICT 
-    const verdictResult = analyzeWatchlist({ timeframe, setup: setupResult.setup, setupScore: setupResult.setupScore, momentumScore: momentumResult.readinessScore, weaknessDetected: momentumResult.weaknessDetected, ltp, ema20, ema50, rsi, previousTriggerLow, previousTriggerHigh, previousSL, advancedEnabled }); 
-    
-    // =========================
-    // BUG FIX: DYNAMIC TRADE PLAN OVERRIDE
-    // =========================
-    // If the setup formed a "New Base" at a higher price, generate and inject a new safe trade plan.
-    if (verdictResult.requiresNewPlan) {
-        lockedTradePlan = generateTradePlan({ ltp, setup: setupResult.setup });
-    }
+    const { 
+        stockName, 
+        timeframe = "15 Min", 
+        previousSetup = "CB", 
+        ltp, 
+        ema20, 
+        ema50, 
+        rsi, 
+        previousTriggerLow, 
+        previousTriggerHigh, 
+        previousSL, 
+        previousTarget = 0, 
+        advancedEnabled = false, 
+        candles = [] 
+    } = data; 
 
-    // REASONS 
-    const reasons = generateWatchlistReasons({ verdict: verdictResult.verdict, setup: setupResult.setup, setupScore: setupResult.setupScore, readinessScore: momentumResult.readinessScore, triggerPressure: momentumResult.triggerPressure, volumeExpansion: momentumResult.volumeExpansion, weaknessDetected: momentumResult.weaknessDetected, ltp, ema20, ema50, rsi, previousTriggerLow, previousTriggerHigh, previousSL, advancedEnabled }); 
+    // 1. LOCKED SETUP EVALUATION
+    const setupResult = calculateSetupScores({ 
+        ltp, 
+        ema20, 
+        ema50, 
+        rsi, 
+        timeframe, 
+        lockedSetup: previousSetup 
+    }); 
+
+    // 2. DEFAULT TRADE PLAN (From User Input)
+    let lockedTradePlan = { 
+        triggerLow: previousTriggerLow, 
+        triggerHigh: previousTriggerHigh, 
+        stopLoss: previousSL, 
+        target: previousTarget 
+    }; 
+
+    // 3. MOMENTUM EVALUATION
+    let momentumResult = { 
+        readinessScore: 0, 
+        readinessStatus: "Not Available", 
+        triggerPressure: 0, 
+        volumeExpansion: "Not Available", 
+        weaknessDetected: false 
+    }; 
     
-    return { stockName, mode: "watchlist", timeframe, ...verdictResult, setup: setupResult.setup, setupScore: setupResult.setupScore, cbScore: setupResult.cbPercent, pcScore: setupResult.pcPercent, readinessScore: momentumResult.readinessScore, triggerPressure: momentumResult.triggerPressure, volumeExpansion: momentumResult.volumeExpansion, lockedTradePlan, reasons }; 
+    if (advancedEnabled && candles.length >= 5) { 
+        momentumResult = calculateWatchlistMomentum({ 
+            candles, 
+            ltp, 
+            previousTriggerLow, 
+            previousTriggerHigh 
+        }); 
+    } 
+
+    // 4. WATCHLIST AUDIT
+    const verdictResult = analyzeWatchlist({ 
+        timeframe, 
+        setup: setupResult.setup, 
+        setupScore: setupResult.setupScore, 
+        momentumScore: momentumResult.readinessScore, 
+        weaknessDetected: momentumResult.weaknessDetected, 
+        ltp, 
+        ema20, 
+        ema50, 
+        rsi, 
+        previousTriggerLow, 
+        previousTriggerHigh, 
+        previousSL, 
+        previousTarget, 
+        advancedEnabled 
+    }); 
+
+    // 5. DYNAMIC TRADE PLAN RECALCULATION (IF NEW BASE FORMED)
+    if (verdictResult.requiresNewPlan) { 
+        if (typeof generateTradePlan === "function") {
+            lockedTradePlan = generateTradePlan({ ltp, setup: setupResult.setup });
+        } else {
+            const newTriggerLow = parseFloat((ltp * 0.997).toFixed(2));
+            const newTriggerHigh = parseFloat((ltp * 1.005).toFixed(2));
+            const safeSL = parseFloat((ema20 < ltp ? ema20 * 0.995 : ltp * 0.98).toFixed(2));
+            const newRisk = ltp - safeSL;
+            const newTarget = parseFloat((ltp + newRisk * 2).toFixed(2));
+
+            lockedTradePlan = { 
+                triggerLow: newTriggerLow, 
+                triggerHigh: newTriggerHigh, 
+                stopLoss: safeSL, 
+                target: newTarget 
+            };
+        }
+    } 
+
+    // 6. GENERATE REASONS
+    const reasons = generateWatchlistReasons({ 
+        verdict: verdictResult.verdict, 
+        setup: setupResult.setup, 
+        setupScore: setupResult.setupScore, 
+        readinessScore: momentumResult.readinessScore, 
+        triggerPressure: momentumResult.triggerPressure, 
+        volumeExpansion: momentumResult.volumeExpansion, 
+        weaknessDetected: momentumResult.weaknessDetected, 
+        ltp, 
+        ema20, 
+        ema50, 
+        rsi, 
+        previousTriggerLow, 
+        previousTriggerHigh, 
+        previousSL, 
+        previousTarget, 
+        advancedEnabled 
+    }); 
+
+    return { 
+        stockName, 
+        mode: "watchlist", 
+        timeframe, 
+        ...verdictResult, 
+        setup: setupResult.setup, 
+        setupScore: setupResult.setupScore, 
+        cbScore: setupResult.cbPercent, 
+        pcScore: setupResult.pcPercent, 
+        readinessScore: momentumResult.readinessScore, 
+        triggerPressure: momentumResult.triggerPressure, 
+        volumeExpansion: momentumResult.volumeExpansion, 
+        lockedTradePlan, 
+        reasons 
+    }; 
 } 
 
 // ========================= 
 // ACTIVE TRADE 
 // ========================= 
 function analyzeActiveTrade(data) { 
-    // Extract previousSetup for reason generation
     const { previousSetup } = data;
 
     let momentumResult = { tradeMomentumScore: 0, momentumHealth: "Not Available", participationTrend: "Not Available", weaknessDetected: false, exhaustionDetected: false }; 
