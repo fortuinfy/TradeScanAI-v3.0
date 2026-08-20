@@ -30,10 +30,11 @@ function analyzeWatchlist(data) {
     const belowStopLoss = ltp < previousSL; 
     
     // ========================= 
-    // NEW BASE VALIDATION (DECOUPLED)
+    // NEW BASE / PRICE EXPANSION VALIDATION (TIMEFRAME AGNOSTIC)
     // ========================= 
-    // Triggers recalculation if price ran past previous zone/target but trend structure is solid
-    const isNewBaseValid = (aboveTriggerZone || targetExceeded) && strongTrend && setupScore >= 80;
+    // If price breaches past the old trigger zone/target in a strong trend, force a new plan recalculation
+    const requiresNewPlan = (aboveTriggerZone || targetExceeded) && strongTrend;
+    const isNewBaseValid = requiresNewPlan && setupScore >= 60;
     
     // ========================= 
     // DEFAULTS 
@@ -43,7 +44,6 @@ function analyzeWatchlist(data) {
     let setupGrade = "B"; 
     let riskLevel = "MEDIUM"; 
     let workflowAction = "Continue Watchlist"; 
-    let requiresNewPlan = isNewBaseValid; // Decoupled flag for Master Router
     const badges = []; 
     
     // ========================= 
@@ -54,7 +54,7 @@ function analyzeWatchlist(data) {
     if (insideTriggerZone) { badges.push("Near Trigger Zone"); } 
     if (aboveTriggerZone) { badges.push("Trigger Breakout"); } 
     if (targetExceeded) { badges.push("Target Exceeded"); } 
-    if (isNewBaseValid) { badges.push("New Base Formed"); }
+    if (requiresNewPlan) { badges.push("New Base Formed"); }
     if (advancedEnabled && momentumScore >= 80) { badges.push("Momentum Expansion"); } 
     
     // ========================= 
@@ -72,7 +72,7 @@ function analyzeWatchlist(data) {
     // ========================= 
     // READY (NEW BASE / TARGET EXCEEDED) 
     // ========================= 
-    else if (timeframe === "15 Min" && isNewBaseValid && healthyRSI && (!advancedEnabled || (momentumScore >= 60 && !weaknessDetected))) { 
+    else if (isNewBaseValid && healthyRSI && (!advancedEnabled || (momentumScore >= 60 && !weaknessDetected))) { 
         verdict = "READY"; 
         confidence = setupScore >= 90 ? 90 : 85; 
         setupGrade = setupScore >= 90 ? "A+" : "A"; 
@@ -82,7 +82,7 @@ function analyzeWatchlist(data) {
     // ========================= 
     // READY (ORIGINAL ENTRY ZONE) 
     // ========================= 
-    else if (timeframe === "15 Min" && insideTriggerZone && strongTrend && setupScore >= 80 && healthyRSI && (!advancedEnabled || (momentumScore >= 60 && !weaknessDetected))) { 
+    else if (insideTriggerZone && strongTrend && setupScore >= 80 && healthyRSI && (!advancedEnabled || (momentumScore >= 60 && !weaknessDetected))) { 
         verdict = "READY"; 
         confidence = setupScore >= 90 ? 90 : 85; 
         setupGrade = setupScore >= 90 ? "A+" : "A"; 
